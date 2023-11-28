@@ -16,7 +16,6 @@ import (
 	"cmd/compile/internal/ir"
 	"cmd/compile/internal/logopt"
 	"cmd/compile/internal/loopvar"
-	"cmd/compile/internal/mq"
 	"cmd/compile/internal/noder"
 	"cmd/compile/internal/pgo"
 	"cmd/compile/internal/pkginit"
@@ -58,7 +57,11 @@ func handlePanic() {
 // arguments, type-checks the parsed Go package, compiles functions to machine
 // code, and finally writes the compiled package definition to disk.
 func Main(archInit func(*ssagen.ArchInfo)) {
-	mq.Init()
+	if _, ok := os.LookupEnv("distgo"); ok {
+		noder.Run()
+	} else {
+		noder.CreateClient()
+	}
 	base.Timer.Start("fe", "init")
 
 	defer handlePanic()
