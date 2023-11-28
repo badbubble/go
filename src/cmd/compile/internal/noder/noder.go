@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"internal/buildcfg"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -25,6 +26,18 @@ import (
 )
 
 func LoadPackage(filenames []string) {
+	// task queue
+	task, err := NewParseTask("1", LOCAL, filenames, nil)
+	if err != nil {
+		log.Fatalf("%v\n", err)
+	}
+	_, err = Client.Enqueue(task)
+	if err != nil {
+		log.Fatalf("could not schedule task: %v", err)
+	}
+
+	//log.Printf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
+	// task queue end
 	base.Timer.Start("fe", "parse")
 
 	// Limit the number of simultaneously open files.
@@ -55,7 +68,6 @@ func LoadPackage(filenames []string) {
 					return
 				}
 				defer f.Close()
-
 				p.file, _ = syntax.Parse(fbase, f, p.error, p.pragma, syntax.CheckBranches) // errors are tracked via p.error
 			}()
 		}
