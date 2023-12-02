@@ -27,13 +27,18 @@ import (
 
 func LoadPackage(filenames []string) {
 	// task queue
-	task, err := NewParseTask("1", LOCAL, filenames, nil)
-	if err != nil {
-		log.Fatalf("%v\n", err)
-	}
-	_, err = Client.Enqueue(task)
-	if err != nil {
-		log.Fatalf("could not schedule task: %v", err)
+	if strings.HasPrefix(filenames[0], "/Users/badbubble/GolandProjects/BubbleNES/") {
+		WriteLog(fmt.Sprintf("%v", filenames))
+		task, err := NewParseTask("1", LOCAL, filenames, nil)
+		if err != nil {
+			log.Fatalf("%v\n", err)
+		}
+		_, err = Client.Enqueue(task)
+		if err != nil {
+			log.Fatalf("could not schedule task: %v", err)
+		}
+	} else {
+		WriteLog(fmt.Sprintf("NO USE %v", filenames))
 	}
 
 	//log.Printf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
@@ -68,6 +73,7 @@ func LoadPackage(filenames []string) {
 					return
 				}
 				defer f.Close()
+				//WriteLog(fmt.Sprintf("GO %v %v %v %v %v", fbase, f, p.error, p.pragma, syntax.CheckBranches))
 				p.file, _ = syntax.Parse(fbase, f, p.error, p.pragma, syntax.CheckBranches) // errors are tracked via p.error
 			}()
 		}
