@@ -12,7 +12,7 @@ import (
 	"runtime"
 )
 
-const redisAddr = "127.0.0.1:6379"
+const redisAddr = "192.168.31.147:6379"
 
 var Client *asynq.Client
 var Server *asynq.Server
@@ -34,7 +34,6 @@ func CreateClient() {
 }
 
 func Run() {
-
 	Server = asynq.NewServer(
 		asynq.RedisClientOpt{Addr: redisAddr},
 		asynq.Config{
@@ -127,6 +126,7 @@ func ParseTaskHandler(ctx context.Context, t *asynq.Task) error {
 					return
 				}
 				defer f.Close()
+				// WriteLog(fmt.Sprintf("MY %v %v %v %v %v", fbase, f, p.error, p.pragma, syntax.CheckBranches))
 				p.file, _ = syntax.Parse(fbase, f, p.error, p.pragma, syntax.CheckBranches) // errors are tracked via p.error
 			}()
 		}
@@ -150,9 +150,6 @@ func ParseTaskHandler(ctx context.Context, t *asynq.Task) error {
 	//	Noders:   noders,
 	//	PosMap:   m,
 	//}
-	base.Timer.AddEvent(int64(lines), "lines")
-	unified(m, noders)
 
-	//fmt.Println(result)
 	return nil
 }
